@@ -1,0 +1,61 @@
+# Builds and publishes to npm whenever a `v*` tag is pushed (e.g. v1.0.0).
+# Also creates a GitHub Release for the tag.
+#
+# Publishing uses npm Trusted Publishing (OIDC) — there is NO NPM_TOKEN. The
+# `aethexai` package must list this repo + workflow as a trusted publisher on
+# npmjs.com (Package → Settings → Trusted Publisher → GitHub Actions). npm then
+# authenticates each publish with a short-lived OIDC credential and generates
+# provenance automatically, so no `--provenance` flag (or secret) is needed.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write # required for npm trusted publishing (OIDC) + provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      # Trusted publishing (OIDC) requires npm >= 11.5.1; pull it explicitly and
+      # log the version. Deliberately NO registry-url / NODE_AUTH_TOKEN: setup-node's
+      # registry-url writes an .npmrc with an empty auth token, and npm then uses
+      # that (unauthenticated) instead of the OIDC flow — which is what caused the
+      # PUT .../aethexai 404. With no token configured, npm publish uses OIDC.
+      - run: npm install -g npm@latest && npm --version
+      - run: npm ci
+      # Fail fast if the tag, package.json, and src/version.ts disagree, so a
+      # mistyped tag or an out-of-sync version source can't publish the wrong build.
+      - name: Verify tag matches version
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          SRC=$(node -p "require('fs').readFileSync('src/version.ts','utf8').match(/VERSION\s*=\s*\"(.+?)\"/)[1]")
+          TAG="${GITHUB_REF_NAME#v}"
+          echo "tag=$TAG package.json=$PKG src/version.ts=$SRC"
+          test "$PKG" = "$TAG" || { echo "::error::tag v$TAG != package.json $PKG"; exit 1; }
+          test "$SRC" = "$PKG" || { echo "::error::src/version.ts $SRC != package.json $PKG"; exit 1; }
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      # Prereleases (version contains a hyphen, e.g. 1.0.0-rc.1) publish under the
+      # `next` dist-tag so they don't become `latest`; stable versions get `latest`.
+      - name: Resolve npm dist-tag
+        id: disttag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [[ "$VERSION" == *-* ]]; then echo "tag=next" >> "$GITHUB_OUTPUT"; else echo "tag=latest" >> "$GITHUB_OUTPUT"; fi
+      - run: npm publish --access public --tag ${{ steps.disttag.outputs.tag }}
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aethex Realtime Demo</title>
+    <style>
+      :root {
+        --bg: #0b0f17;
+        --panel: #131a26;
+        --border: #243044;
+        --text: #e6edf6;
+        --muted: #8a98ad;
+        --accent: #5b8cff;
+        --user: #1f6feb;
+        --agent: #2ea043;
+        --danger: #f0506e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        justify-content: center;
+        padding: 32px 16px;
+      }
+      main { width: 100%; max-width: 720px; }
+      h1 { font-size: 20px; margin: 0 0 4px; }
+      p.sub { color: var(--muted); margin: 0 0 20px; }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+      }
+      label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 4px; }
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        background: #0c121d;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 14px;
+      }
+      input:focus { outline: none; border-color: var(--accent); }
+      .row { display: flex; gap: 12px; align-items: center; margin-top: 16px; }
+      button {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        color: #fff;
+        background: var(--accent);
+      }
+      button:disabled { opacity: 0.4; cursor: not-allowed; }
+      button.secondary { background: #2a3548; }
+      .pill {
+        margin-left: auto;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #1c2433;
+        color: var(--muted);
+      }
+      .pill[data-state="connected"] { background: rgba(46,160,67,.18); color: #4ac26b; }
+      .pill[data-state="connecting"] { background: rgba(91,140,255,.18); color: var(--accent); }
+      .pill[data-state="failed"], .pill[data-state="closed"] { background: rgba(240,80,110,.18); color: var(--danger); }
+      #log {
+        height: 320px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .line { padding: 8px 12px; border-radius: 10px; max-width: 85%; white-space: pre-wrap; }
+      .line.user { align-self: flex-end; background: var(--user); }
+      .line.agent { align-self: flex-start; background: #1b2735; border: 1px solid var(--border); }
+      .line.sys { align-self: center; color: var(--muted); font-size: 12px; background: transparent; }
+      .hint { color: var(--muted); font-size: 12px; margin-top: 14px; }
+      code { background: #0c121d; padding: 1px 5px; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Aethex Realtime Demo</h1>
+      <p class="sub">Talk to a voice agent over WebRTC — the SDK handles connect / offer / ICE for you.</p>
+
+      <div class="panel">
+        <label for="apiKey">API key (X-API-Key) — stays in this tab, never stored</label>
+        <input id="apiKey" type="password" placeholder="ae_live_..." autocomplete="off" />
+        <label for="agentId">Agent ID</label>
+        <input id="agentId" placeholder="ag_..." />
+        <div class="row">
+          <button id="connect">Connect &amp; talk</button>
+          <button id="hangup" class="secondary" disabled>Hang up</button>
+          <span id="status" class="pill" data-state="idle">idle</span>
+        </div>
+        <p class="hint">
+          Click <strong>Connect</strong> (a user gesture is required for mic access). The agent's
+          audio plays automatically. Open the console for the full event stream. API calls go
+          through the Vite dev proxy to <code>api.aethexai.com</code> (set
+          <code>AETHEX_PROXY_TARGET</code> to point elsewhere), which avoids browser CORS.
+        </p>
+      </div>
+
+      <div class="panel">
+        <div id="log"><div class="line sys">Transcript will appear here…</div></div>
+      </div>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

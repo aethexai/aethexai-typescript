@@ -1,0 +1,4 @@
+# Format + lint the staged files, then typecheck the whole project.
+# Full test suite + build run in CI (add a pre-push hook if you want them here).
+npx lint-staged
+npm run typecheck

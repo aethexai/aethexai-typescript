@@ -1,0 +1,29 @@
+# Lint, typecheck, test, and build on every push to main and every pull
+# request, across the supported Node matrix (20 is the floor per package.json
+# "engines" — the SDK uses the File API, a Node global since v20; 22 is the
+# current LTS upper bound).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

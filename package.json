@@ -1,0 +1,128 @@
+{
+  "name": "aethexai",
+  "version": "1.0.0",
+  "description": "Official TypeScript SDK for the Aethex voice AI platform",
+  "license": "MIT",
+  "author": "Ayooluwa Odemuyiwa <ayooluwa@aethexai.com>",
+  "homepage": "https://aethexai.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aethexai/aethexai-typescript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aethexai/aethexai-typescript/issues"
+  },
+  "keywords": [
+    "aethex",
+    "voice-ai",
+    "tts",
+    "stt",
+    "asr",
+    "agents",
+    "voice-agents",
+    "webrtc",
+    "realtime",
+    "transcription",
+    "speech-synthesis",
+    "kora"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./realtime": {
+      "import": {
+        "types": "./dist/realtime.d.ts",
+        "default": "./dist/realtime.js"
+      },
+      "require": {
+        "types": "./dist/realtime.d.cts",
+        "default": "./dist/realtime.cjs"
+      }
+    },
+    "./realtime/node": {
+      "import": {
+        "types": "./dist/realtime/node.d.ts",
+        "default": "./dist/realtime/node.js"
+      },
+      "require": {
+        "types": "./dist/realtime/node.d.cts",
+        "default": "./dist/realtime/node.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,cjs,mjs,json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "generate": "openapi-ts",
+    "demo:quickstart": "tsx examples/quickstart.ts",
+    "demo:browser": "vite examples/browser",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "prepublishOnly": "npm run build",
+    "version": "node scripts/sync-version.mjs && git add src/version.ts",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@hey-api/client-fetch": "0.13.1"
+  },
+  "peerDependencies": {
+    "@roamhq/wrtc": "^0.10.0"
+  },
+  "peerDependenciesMeta": {
+    "@roamhq/wrtc": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@hey-api/openapi-ts": "0.98.2",
+    "@roamhq/wrtc": "^0.10.0",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.21",
+    "vitest": "^2.0.0"
+  }
+}
